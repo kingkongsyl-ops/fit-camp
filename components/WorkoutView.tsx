@@ -98,14 +98,24 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
   if (isLandscape) {
     return (
       <View style={styles.landscapeContainer}>
+        <TouchableOpacity onPress={handleBack} style={styles.landscapeBackButton}>
+          <Text style={styles.landscapeBackButtonText}>←</Text>
+        </TouchableOpacity>
+
         <View style={styles.landscapeMainContent}>
-          {/* Left Panel - Live Coaching */}
+          {/* Left Panel - Live Coaching (extreme-left, centered) + Motivation (left-center) */}
           <View style={styles.landscapeLeftPanel}>
-            <View style={styles.landscapeCoachHeader}>
-              <Text style={styles.landscapeCoachTitle}>LIVE COACH</Text>
+            <View style={styles.landscapeCoachBlock}>
+              <View style={styles.landscapeCoachHeader}>
+                <Text style={styles.landscapeCoachTitle}>LIVE COACH</Text>
+              </View>
+              <View style={styles.landscapeCoachContent}>
+                <LiveCoaching message={getFeedbackMessage()} />
+              </View>
             </View>
-            <View style={styles.landscapeCoachContent}>
-              <LiveCoaching message={getFeedbackMessage()} />
+
+            <View style={styles.landscapeMotivationContainer}>
+              <Text style={styles.landscapeMotivationText}>Crushing it! 🏆</Text>
             </View>
           </View>
 
@@ -122,14 +132,10 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
             </View>
 
             <View style={styles.landscapeCircleContainer}>
-              <ProgressRing progress={setProgress} size={180} strokeWidth={8} />
+              <ProgressRing progress={setProgress} size={260} strokeWidth={12} />
               <View style={styles.landscapeRepCounterOverlay}>
                 <RepCounterNew repsLeft={remainingReps} repsDone={repCount} />
               </View>
-            </View>
-
-            <View style={styles.landscapeMotivationContainer}>
-              <Text style={styles.landscapeMotivationText}>Crushing it! 🏆</Text>
             </View>
           </View>
         </View>
@@ -313,9 +319,13 @@ const styles = StyleSheet.create({
   landscapeLeftPanel: {
     flex: 0.4,
     padding: 16,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     borderRightWidth: 1,
     borderRightColor: '#1E1E2E',
+    gap: 28,
+  },
+  landscapeCoachBlock: {
+    alignItems: 'flex-start',
   },
   landscapeRightPanel: {
     flex: 0.6,
@@ -337,19 +347,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   landscapeProgressBar: {
-    flex: 1,
-    height: 8,
+    width: 90,
+    height: 4,
     backgroundColor: '#1E1E2E',
-    borderRadius: 4,
+    borderRadius: 2,
     overflow: 'hidden',
   },
   landscapeProgressFill: {
     height: '100%',
     backgroundColor: '#acd205',
-    borderRadius: 4,
+    borderRadius: 2,
   },
   landscapeSetProgressText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#e0ce12',
     fontWeight: '600',
   },
@@ -382,7 +392,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   landscapeCoachContent: {
-    flex: 1,
+    alignSelf: 'stretch',
   },
   landscapeBottomStatsRow: {
     flexDirection: 'row',
@@ -417,5 +427,23 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  landscapeBackButton: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#1E1E2E',
+  },
+  landscapeBackButtonText: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    lineHeight: 26,
   },
 });
