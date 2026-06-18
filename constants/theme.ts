@@ -1,0 +1,16 @@
+export const colors = {
+  background: '#0A0A0F',
+  surface: '#1E1E2E',
+  surfaceDark: '#2A2A4A',
+  border: '#020218',
+  overlay: 'rgba(0, 0, 0, 0.8)',
+  white: '#FFFFFF',
+  accent: '#F97316',
+  primary: '#6366F1',
+  primaryLight: '#A5B4FC',
+  purple: '#8B5CF6',
+  success: '#10B981',
+  muted: '#7D8AA3',
+  progressGreen: '#acd205',
+  progressYellow: '#e0ce12',
+} as const;

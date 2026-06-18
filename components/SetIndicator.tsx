@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '@/constants/theme';
 
 interface SetIndicatorProps {
   currentSet: number;
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#A5B4FC',
+    color: colors.primaryLight,
     marginBottom: 8,
   },
   dotsContainer: {
@@ -44,9 +45,9 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#2A2A4A',
+    backgroundColor: colors.surfaceDark,
   },
   completedDot: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.primary,
   },
 });

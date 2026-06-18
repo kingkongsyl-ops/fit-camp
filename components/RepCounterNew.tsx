@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '@/constants/theme';
 
 interface RepCounterNewProps {
   repsLeft: number;
@@ -27,18 +28,18 @@ const styles = StyleSheet.create({
   repsLeft: {
     fontSize: 64,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.white,
     lineHeight: 72,
   },
   label: {
     fontSize: 14,
-    color: '#7D8AA3',
+    color: colors.muted,
     marginTop: -4,
   },
   repsDone: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6366F1',
+    color: colors.primary,
     marginTop: 8,
   },
 });

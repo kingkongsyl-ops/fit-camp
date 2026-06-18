@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '@/constants/theme';
 
 interface StatsRowProps {
   done: number;
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     width: '100%',
     paddingVertical: 16,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.surface,
     borderRadius: 12,
   },
   stat: {
@@ -41,11 +42,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.white,
   },
   statLabel: {
     fontSize: 12,
-    color: '#7D8AA3',
+    color: colors.muted,
     marginTop: 4,
   },
 });

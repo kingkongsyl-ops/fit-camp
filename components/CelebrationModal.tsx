@@ -1,5 +1,6 @@
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { colors } from '@/constants/theme';
 
 interface CelebrationModalProps {
   visible: boolean;
@@ -32,12 +33,12 @@ export function CelebrationModal({ visible, exerciseName }: CelebrationModalProp
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   card: {
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.surface,
     borderRadius: 24,
     padding: 40,
     alignItems: 'center',
@@ -50,23 +51,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.white,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#A5B4FC',
+    color: colors.primaryLight,
     textAlign: 'center',
     marginBottom: 24,
   },
   button: {
-    backgroundColor: '#6366F1',
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 48,
     borderRadius: 12,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 18,
     fontWeight: '600',
   },
