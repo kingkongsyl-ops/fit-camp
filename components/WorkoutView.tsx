@@ -1,16 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { EXERCISES } from '@/constants/exercises';
+import { colors } from '@/constants/theme';
+import { getFeedbackMessage } from '@/utils/getFeedbackMessage';
 import { useExerciseCounter } from '@/hooks/useExerciseCounter';
 import { LiveCoaching } from '@/components/LiveCoaching';
-import { ProgressRing } from '@/components/ProgressRing';
-import { RepCounterNew } from '@/components/RepCounterNew';
 import { MotivationText } from '@/components/MotivationText';
 import { SetIndicator } from '@/components/SetIndicator';
 import { StatsRow } from '@/components/StatsRow';
 import { CelebrationModal } from '@/components/CelebrationModal';
+import { BackButton } from '@/components/shared/BackButton';
+import { PauseResumeButton } from '@/components/shared/PauseResumeButton';
+import { RepProgressCircle } from '@/components/shared/RepProgressCircle';
+import { WorkoutStatsRow } from '@/components/shared/WorkoutStatsRow';
 
 interface WorkoutViewProps {
   exerciseId: string;
@@ -70,27 +74,13 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
     }
   }, [isPaused, start, stop]);
 
-  const getFeedbackMessage = () => {
-    if (isPaused) return 'Paused';
-    if (remainingReps === 0) return 'Set complete!';
-    if (repCount > 0) return `Rep ${repCount}!`;
-    if (!isDetecting) return 'Get ready!';
-
-    switch (exerciseId) {
-      case 'overhead':
-        return 'Lift up!';
-      case 'seatedSquats':
-        return 'Sit back';
-      case 'situps':
-        return 'Lift up';
-      case 'walking':
-        return 'Start walking';
-      case 'marching':
-        return 'Start marching';
-      default:
-        return 'Detecting motion...';
-    }
-  };
+  const feedbackMessage = getFeedbackMessage({
+    isPaused,
+    remainingReps,
+    repCount,
+    isDetecting,
+    exerciseId,
+  });
 
   const setProgress = 1 - (remainingReps / totalReps);
   const isLandscape = exercise?.orientation === 'landscape';
@@ -98,19 +88,16 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
   if (isLandscape) {
     return (
       <View style={styles.landscapeContainer}>
-        <TouchableOpacity onPress={handleBack} style={styles.landscapeBackButton}>
-          <Text style={styles.landscapeBackButtonText}>←</Text>
-        </TouchableOpacity>
+        <BackButton onPress={handleBack} variant="floating" />
 
         <View style={styles.landscapeMainContent}>
-          {/* Left Panel - Live Coaching (extreme-left, centered) + Motivation (left-center) */}
           <View style={styles.landscapeLeftPanel}>
             <View style={styles.landscapeCoachBlock}>
               <View style={styles.landscapeCoachHeader}>
                 <Text style={styles.landscapeCoachTitle}>LIVE COACH</Text>
               </View>
               <View style={styles.landscapeCoachContent}>
-                <LiveCoaching message={getFeedbackMessage()} />
+                <LiveCoaching message={feedbackMessage} />
               </View>
             </View>
 
@@ -119,7 +106,6 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
             </View>
           </View>
 
-          {/* Right Panel - Rep Counter + Progress Ring */}
           <View style={styles.landscapeRightPanel}>
             <View style={styles.landscapeHeader}>
               <Text style={styles.landscapeExerciseName}>🧘‍♂️ {exercise?.name}</Text>
@@ -132,31 +118,26 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
             </View>
 
             <View style={styles.landscapeCircleContainer}>
-              <ProgressRing progress={setProgress} size={260} strokeWidth={12} />
-              <View style={styles.landscapeRepCounterOverlay}>
-                <RepCounterNew repsLeft={remainingReps} repsDone={repCount} />
-              </View>
+              <RepProgressCircle
+                progress={setProgress}
+                repsLeft={remainingReps}
+                repsDone={repCount}
+                size={260}
+                strokeWidth={12}
+              />
             </View>
           </View>
         </View>
 
-        {/* Bottom Stats Row */}
         <View style={styles.landscapeBottomStatsRow}>
-          <View style={styles.landscapeStatItem}>
-            <Text style={styles.landscapeStatLabel}>Target</Text>
-            <Text style={styles.landscapeStatValue}>{totalReps}</Text>
-          </View>
-          <View style={styles.landscapeStatItem}>
-            <Text style={styles.landscapeStatLabel}>Done</Text>
-            <Text style={styles.landscapeStatValue}>{repCount}</Text>
-          </View>
-          <View style={styles.landscapeStatItem}>
-            <Text style={styles.landscapeStatLabel}>Set</Text>
-            <Text style={styles.landscapeStatValue}>{currentSet}/{totalSets}</Text>
-          </View>
-          <TouchableOpacity style={styles.landscapePauseButton} onPress={handlePauseResume}>
-            <Text style={styles.landscapePauseButtonText}>{isPaused ? '▶' : '⏸'}</Text>
-          </TouchableOpacity>
+          <WorkoutStatsRow
+            stats={[
+              { label: 'Target', value: totalReps },
+              { label: 'Done', value: repCount },
+              { label: 'Set', value: `${currentSet}/${totalSets}` },
+            ]}
+          />
+          <PauseResumeButton isPaused={isPaused} onPress={handlePauseResume} variant="pill" />
         </View>
 
         <CelebrationModal visible={isComplete} exerciseName={exercise?.name || 'Exercise'} />
@@ -167,13 +148,9 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
+        <BackButton onPress={handleBack} />
         <Text style={styles.headerTitle}>{exercise?.name}</Text>
-        <TouchableOpacity onPress={handlePauseResume} style={styles.pauseButton}>
-          <Text style={styles.pauseButtonText}>{isPaused ? '▶' : '⏸'}</Text>
-        </TouchableOpacity>
+        <PauseResumeButton isPaused={isPaused} onPress={handlePauseResume} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -182,12 +159,15 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
         </View>
 
         <View style={styles.counterContainer}>
-          <ProgressRing progress={setProgress} size={280} strokeWidth={8} />
-          <RepCounterNew repsLeft={remainingReps} repsDone={repCount} />
+          <RepProgressCircle
+            progress={setProgress}
+            repsLeft={remainingReps}
+            repsDone={repCount}
+          />
         </View>
 
         <View style={styles.motivationWrapper}>
-          <MotivationText message={getFeedbackMessage()} />
+          <MotivationText message={feedbackMessage} />
         </View>
 
         <View style={styles.statsWrapper}>
@@ -203,36 +183,21 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#020218',
-  },
-  backButton: {
-    padding: 8,
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     flex: 1,
     fontSize: 20,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.white,
     textAlign: 'center',
-  },
-  pauseButton: {
-    padding: 8,
-  },
-  pauseButtonText: {
-    fontSize: 28,
-    color: '#F97316',
   },
   content: {
     flexGrow: 1,
@@ -242,9 +207,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   counterContainer: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 40,
     marginTop: 32,
   },
@@ -258,58 +220,9 @@ const styles = StyleSheet.create({
   statsWrapper: {
     marginTop: 16,
   },
-  statsContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  statsText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  mutedText: {
-    fontSize: 12,
-    color: '#7D8AA3',
-  },
-  feedbackContainer: {
-    marginBottom: 24,
-  },
-  feedbackText: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#8B5CF6',
-  },
-  manualButton: {
-    backgroundColor: '#6366F1',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 48,
-    marginBottom: 12,
-    minWidth: 200,
-  },
-  manualButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  stopButton: {
-    backgroundColor: '#2A2A4A',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 48,
-    minWidth: 200,
-  },
-  stopButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
   landscapeContainer: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: colors.background,
   },
   landscapeMainContent: {
     flex: 1,
@@ -321,7 +234,7 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: 'center',
     borderRightWidth: 1,
-    borderRightColor: '#1E1E2E',
+    borderRightColor: colors.surface,
     gap: 28,
   },
   landscapeCoachBlock: {
@@ -338,7 +251,7 @@ const styles = StyleSheet.create({
   landscapeExerciseName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.white,
     marginBottom: 8,
   },
   landscapeProgressBarContainer: {
@@ -349,29 +262,24 @@ const styles = StyleSheet.create({
   landscapeProgressBar: {
     width: 90,
     height: 4,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.surface,
     borderRadius: 2,
     overflow: 'hidden',
   },
   landscapeProgressFill: {
     height: '100%',
-    backgroundColor: '#acd205',
+    backgroundColor: colors.progressGreen,
     borderRadius: 2,
   },
   landscapeSetProgressText: {
     fontSize: 12,
-    color: '#e0ce12',
+    color: colors.progressYellow,
     fontWeight: '600',
   },
   landscapeCircleContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-  },
-  landscapeRepCounterOverlay: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   landscapeMotivationContainer: {
     alignItems: 'center',
@@ -380,7 +288,7 @@ const styles = StyleSheet.create({
   landscapeMotivationText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.white,
   },
   landscapeCoachHeader: {
     paddingBottom: 16,
@@ -388,7 +296,7 @@ const styles = StyleSheet.create({
   landscapeCoachTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#6366F1',
+    color: colors.primary,
     letterSpacing: 2,
   },
   landscapeCoachContent: {
@@ -401,49 +309,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderTopWidth: 1,
-    borderTopColor: '#1E1E2E',
-    backgroundColor: '#0A0A0F',
-  },
-  landscapeStatItem: {
-    alignItems: 'center',
-  },
-  landscapeStatLabel: {
-    fontSize: 12,
-    color: '#A5B4FC',
-    marginBottom: 4,
-  },
-  landscapeStatValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  landscapePauseButton: {
-    backgroundColor: '#F97316',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  landscapePauseButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  landscapeBackButton: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    zIndex: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1E1E2E',
-  },
-  landscapeBackButtonText: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    fontWeight: '600',
-    lineHeight: 26,
+    borderTopColor: colors.surface,
+    backgroundColor: colors.background,
   },
 });

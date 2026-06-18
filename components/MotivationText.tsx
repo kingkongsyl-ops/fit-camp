@@ -1,17 +1,18 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '@/constants/theme';
 
 interface MotivationTextProps {
   message: string;
 }
 
 const MOTIVATION_COLORS: Record<string, string> = {
-  'Paused': '#F97316',
-  'Set complete!': '#10B981',
-  'Get ready!': '#A5B4FC',
+  'Paused': colors.accent,
+  'Set complete!': colors.success,
+  'Get ready!': colors.primaryLight,
 };
 
 export function MotivationText({ message }: MotivationTextProps) {
-  const color = MOTIVATION_COLORS[message] || '#8B5CF6';
+  const color = MOTIVATION_COLORS[message] || colors.purple;
 
   return (
     <View style={styles.container} testID="motivation-text">

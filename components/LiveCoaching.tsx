@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '@/constants/theme';
 
 interface LiveCoachingProps {
   message: string;
@@ -23,17 +24,17 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.surface,
     alignItems: 'center',
   },
   message: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#A5B4FC',
+    color: colors.primaryLight,
     textAlign: 'center',
   },
   actionMessage: {
-    color: '#10B981',
+    color: colors.success,
     fontSize: 22,
   },
 });
