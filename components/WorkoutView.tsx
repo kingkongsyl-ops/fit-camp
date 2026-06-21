@@ -35,38 +35,79 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
   const totalReps = exercise?.targetReps || 20;
 
   useEffect(() => {
-    start();
-    return () => stop();
+    try {
+      start();
+    } catch (err) {
+      console.error(`Failed to start exercise counter for "${exerciseId}":`, err);
+    }
+    return () => {
+      try {
+        stop();
+      } catch (err) {
+        console.error(`Failed to stop exercise counter for "${exerciseId}":`, err);
+      }
+    };
   }, []);
 
   useEffect(() => {
-    const setOrientation = async () => {
-      if (exercise?.orientation === 'landscape') {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-      } else {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    const lockOrientation = async () => {
+      try {
+        if (exercise?.orientation === 'landscape') {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+        } else {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+        }
+      } catch (err) {
+        console.error('Failed to lock screen orientation:', err);
       }
     };
 
-    setOrientation();
+    lockOrientation();
 
     return () => {
-      ScreenOrientation.unlockAsync();
+      ScreenOrientation.unlockAsync().catch((err) => {
+        console.error('Failed to unlock screen orientation:', err);
+      });
     };
   }, [exercise?.orientation]);
 
+  if (!exercise) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>←</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Exercise not found</Text>
+        </View>
+        <View style={styles.content}>
+          <Text style={styles.mutedText}>Unknown exercise: "{exerciseId}"</Text>
+        </View>
+      </View>
+    );
+  }
+
   const handleBack = () => {
-    stop();
-    router.back();
+    try {
+      stop();
+    } catch (err) {
+      console.error('Failed to stop exercise on back navigation:', err);
+    } finally {
+      router.back();
+    }
   };
 
   const handlePauseResume = useCallback(() => {
-    if (isPaused) {
-      setIsPaused(false);
-      start();
-    } else {
-      setIsPaused(true);
-      stop();
+    try {
+      if (isPaused) {
+        setIsPaused(false);
+        start();
+      } else {
+        setIsPaused(true);
+        stop();
+      }
+    } catch (err) {
+      console.error('Failed to toggle pause/resume:', err);
     }
   }, [isPaused, start, stop]);
 
@@ -93,7 +134,7 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
   };
 
   const setProgress = 1 - (remainingReps / totalReps);
-  const isLandscape = exercise?.orientation === 'landscape';
+  const isLandscape = exercise.orientation === 'landscape';
 
   if (isLandscape) {
     return (
@@ -122,7 +163,7 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
           {/* Right Panel - Rep Counter + Progress Ring */}
           <View style={styles.landscapeRightPanel}>
             <View style={styles.landscapeHeader}>
-              <Text style={styles.landscapeExerciseName}>🧘‍♂️ {exercise?.name}</Text>
+              <Text style={styles.landscapeExerciseName}>🧘‍♂️ {exercise.name}</Text>
               <View style={styles.landscapeProgressBarContainer}>
                 <View style={styles.landscapeProgressBar}>
                   <View style={[styles.landscapeProgressFill, { width: `${setProgress * 100}%` }]} />
@@ -159,7 +200,7 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
           </TouchableOpacity>
         </View>
 
-        <CelebrationModal visible={isComplete} exerciseName={exercise?.name || 'Exercise'} />
+        <CelebrationModal visible={isComplete} exerciseName={exercise.name} />
       </View>
     );
   }
@@ -170,7 +211,7 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{exercise?.name}</Text>
+        <Text style={styles.headerTitle}>{exercise.name}</Text>
         <TouchableOpacity onPress={handlePauseResume} style={styles.pauseButton}>
           <Text style={styles.pauseButtonText}>{isPaused ? '▶' : '⏸'}</Text>
         </TouchableOpacity>
@@ -195,7 +236,7 @@ export function WorkoutView({ exerciseId }: WorkoutViewProps) {
         </View>
       </ScrollView>
 
-      <CelebrationModal visible={isComplete} exerciseName={exercise?.name || 'Exercise'} />
+      <CelebrationModal visible={isComplete} exerciseName={exercise.name} />
     </View>
   );
 }
